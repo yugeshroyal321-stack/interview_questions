@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Interview Simulator — AI-Powered Mock Interviews</title>
+  <meta name="description"
+    content="Practice technical interviews with adaptive AI. MCQ, short answer, and detailed questions across Python, JavaScript, ML, DSA and more.">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+    rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
+
+    :root {
+      --bg: #f0f4f8;
+      --surface: rgba(255, 255, 255, 0.92);
+      --surface2: rgba(255, 255, 255, 0.98);
+      --surface3: #f8fafc;
+      --border: #cbd5e1;
+      --border2: #94a3b8;
+      --text: #0f172a;
+      --text2: #334155;
+      --text3: #475569;
+      --accent: #4f46e5;
+      --accent2: #6366f1;
+      --accent-glow: rgba(79, 70, 229, 0.15);
+      --green: #16a34a;
+      --green-bg: rgba(22, 163, 74, 0.15);
+      --green-border: rgba(22, 163, 74, 0.3);
+      --red: #dc2626;
+      --red-bg: rgba(220, 38, 38, 0.15);
+      --red-border: rgba(220, 38, 38, 0.3);
+      --amber: #d97706;
+      --amber-bg: rgba(217, 119, 6, 0.15);
+      --amber-border: rgba(217, 119, 6, 0.3);
+      --radius: 12px;
+      --radius-sm: 8px;
+      --radius-lg: 16px;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg) url('interview_background.png') no-repeat center center fixed;
+      background-size: cover;
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    .app {
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 32px 20px
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 36px
+    }
+
+    .header h1 {
+      font-size: clamp(22px, 5vw, 32px);
+      font-weight: 800;
+      background: linear-gradient(135deg, #818cf8, #6366f1, #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -.5px
+    }
+
+    .header p {
+      color: var(--text2);
+      font-size: 14px;
+      margin-top: 6px
+    }
+
+    .header .tag {
+      display: inline-block;
+      background: var(--accent-glow);
+      color: var(--accent2);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 5px 14px;
+      border-radius: 20px;
+      margin-top: 10px;
+      border: 1px solid rgba(99, 102, 241, .2);
+      letter-spacing: .5px
+    }
+
+    /* Cards */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      margin-bottom: 20px;
+      backdrop-filter: blur(8px)
+    }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px
+    }
+
+    .card-title .icon {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      background: var(--accent-glow);
+      color: var(--accent2)
+    }
+
+    /* Inputs */
+    textarea,
+    input[type=text] {
+      width: 100%;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 14px;
+      font-size: 14px;
+      font-family: inherit;
+      resize: vertical;
+      outline: none;
+      transition: border .25s, box-shadow .25s;
+      color: var(--text);
+      background: var(--surface2)
+    }
+
+    textarea {
+      min-height: 120px
+    }
+
+    textarea:focus,
+    input[type=text]:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow)
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px
+    }
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text3);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px
+    }
+
+    .hint {
+      font-size: 12px;
+      color: var(--text3);
+      margin-top: 8px
+    }
+
+    /* Buttons */
+    .btn {
+      padding: 12px 28px;
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all .2s;
+      letter-spacing: .3px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #6366f1, #4f46e5);
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(99, 102, 241, .3)
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #818cf8, #6366f1);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(99, 102, 241, .4)
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--accent2);
+      border: 1.5px solid var(--accent)
+    }
+
+    .btn-outline:hover {
+      background: var(--accent-glow)
+    }
+
+    .btn-danger {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      color: #fff
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      flex-wrap: wrap
+    }
+
+    /* Steps */
+    .step-indicator {
+      display: flex;
+      gap: 0;
+      margin-bottom: 32px;
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid var(--border)
+    }
+
+    .step {
+      flex: 1;
+      padding: 12px 8px;
+      font-size: 12px;
+      font-weight: 600;
+      text-align: center;
+      background: var(--surface);
+      color: var(--text3);
+      transition: all .3s
+    }
+
+    .step.active {
+      background: var(--accent);
+      color: #fff
+    }
+
+    .step.done {
+      background: var(--green-bg);
+      color: var(--green)
+    }
+
+    /* Skill bars */
+    .skill-map {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 8px
+    }
+
+    .skill-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px
+    }
+
+    .skill-bar-wrap {
+      flex: 1;
+      height: 6px;
+      background: var(--surface3);
+      border-radius: 3px;
+      overflow: hidden
+    }
+
+    .skill-bar {
+      height: 100%;
+      border-radius: 3px;
+      transition: width .6s
+    }
+
+    .bar-strong {
+      background: var(--green)
+    }
+
+    .bar-medium {
+      background: var(--amber)
+    }
+
+    .bar-weak {
+      background: var(--red)
+    }
+
+    .chip {
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600
+    }
+
+    .chip.strong {
+      background: var(--green-bg);
+      color: var(--green)
+    }
+
+    .chip.medium {
+      background: var(--amber-bg);
+      color: var(--amber)
+    }
+
+    .chip.weak {
+      background: var(--red-bg);
+      color: var(--red)
+    }
+
+    .alert-info {
+      background: var(--accent-glow);
+      border: 1px solid rgba(99, 102, 241, .2);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      font-size: 13px;
+      color: var(--accent2);
+      margin-bottom: 16px
+    }
+
+    /* Interview */
+    .interview-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 12px
+    }
+
+    .progress-bar {
+      height: 6px;
+      background: var(--surface3);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-bottom: 4px
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      border-radius: 3px;
+      transition: width .4s
+    }
+
+    .q-meta {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 14px;
+      flex-wrap: wrap
+    }
+
+    .diff-badge,
+    .type-badge,
+    .topic-badge {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 20px
+    }
+
+    .diff-easy {
+      background: var(--green-bg);
+      color: var(--green);
+      border: 1px solid var(--green-border)
+    }
+
+    .diff-medium {
+      background: var(--amber-bg);
+      color: var(--amber);
+      border: 1px solid var(--amber-border)
+    }
+
+    .diff-hard {
+      background: var(--red-bg);
+      color: var(--red);
+      border: 1px solid var(--red-border)
+    }
+
+    .type-mcq {
+      background: rgba(99, 102, 241, .1);
+      color: var(--accent2);
+      border: 1px solid rgba(99, 102, 241, .25)
+    }
+
+    .type-short {
+      background: rgba(236, 72, 153, .1);
+      color: #f472b6;
+      border: 1px solid rgba(236, 72, 153, .25)
+    }
+
+    .type-detailed {
+      background: rgba(34, 197, 94, .1);
+      color: var(--green);
+      border: 1px solid var(--green-border)
+    }
+
+    .topic-badge {
+      background: var(--accent-glow);
+      color: var(--accent2);
+      border: 1px solid rgba(99, 102, 241, .2)
+    }
+
+    .question-box {
+      background: linear-gradient(135deg, var(--surface2), var(--surface3));
+      border: 1.5px solid var(--border2);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 18px
+    }
+
+    .question-text {
+      font-size: 15px;
+      color: var(--text);
+      font-weight: 500;
+      line-height: 1.7
+    }
+
+    /* MCQ */
+    .mcq-options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 16px
+    }
+
+    .mcq-option {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 18px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: all .2s;
+      background: var(--surface2);
+      font-size: 14px;
+      color: var(--text)
+    }
+
+    .mcq-option:hover {
+      border-color: var(--accent);
+      background: var(--accent-glow)
+    }
+
+    .mcq-option.selected {
+      border-color: var(--accent);
+      background: var(--accent-glow);
+      font-weight: 600
+    }
+
+    .mcq-option.correct {
+      border-color: var(--green);
+      background: var(--green-bg)
+    }
+
+    .mcq-option.wrong {
+      border-color: var(--red);
+      background: var(--red-bg)
+    }
+
+    .mcq-radio {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 2px solid var(--border2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all .2s
+    }
+
+    .mcq-option.selected .mcq-radio {
+      border-color: var(--accent);
+      background: var(--accent)
+    }
+
+    .mcq-option.selected .mcq-radio::after {
+      content: '';
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #fff
+    }
+
+    .mcq-option.correct .mcq-radio {
+      border-color: var(--green);
+      background: var(--green)
+    }
+
+    .mcq-option.wrong .mcq-radio {
+      border-color: var(--red);
+      background: var(--red)
+    }
+
+    /* Evaluation */
+    .evaluation {
+      border-radius: var(--radius);
+      padding: 18px;
+      margin-bottom: 16px;
+      border-left: 4px solid
+    }
+
+    .eval-good {
+      background: var(--green-bg);
+      border-color: var(--green)
+    }
+
+    .eval-ok {
+      background: var(--amber-bg);
+      border-color: var(--amber)
+    }
+
+    .eval-bad {
+      background: var(--red-bg);
+      border-color: var(--red)
+    }
+
+    .eval-header {
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--text)
+    }
+
+    .eval-body {
+      font-size: 13px;
+      color: var(--text2);
+      line-height: 1.7
+    }
+
+    .score-pill {
+      font-size: 13px;
+      font-weight: 700;
+      padding: 3px 12px;
+      border-radius: 20px;
+      float: right
+    }
+
+    .score-high {
+      background: var(--green-bg);
+      color: var(--green)
+    }
+
+    .score-mid {
+      background: var(--amber-bg);
+      color: var(--amber)
+    }
+
+    .score-low {
+      background: var(--red-bg);
+      color: var(--red)
+    }
+
+    /* Timeline */
+    .timeline {
+      border-left: 2px solid var(--border);
+      padding-left: 16px;
+      margin-top: 8px
+    }
+
+    .tl-item {
+      position: relative;
+      margin-bottom: 12px;
+      font-size: 13px;
+      color: var(--text2)
+    }
+
+    .tl-item::before {
+      content: '';
+      position: absolute;
+      left: -20px;
+      top: 5px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent)
+    }
+
+    .tl-pass::before {
+      background: var(--green)
+    }
+
+    .tl-fail::before {
+      background: var(--red)
+    }
+
+    /* Feedback */
+    .overall-score {
+      text-align: center;
+      padding: 32px;
+      background: linear-gradient(135deg, #e0e7ff, #c7d2fe, #a5b4fc);
+      border-radius: var(--radius-lg);
+      color: #1e1b4b;
+      margin-bottom: 24px;
+      border: 1px solid rgba(99, 102, 241, .3)
+    }
+
+    .overall-score .score-num {
+      font-size: clamp(48px, 10vw, 64px);
+      font-weight: 900;
+      line-height: 1
+    }
+
+    .overall-score .score-label {
+      font-size: 14px;
+      opacity: .8;
+      margin-top: 8px
+    }
+
+    .domain-tag {
+      display: inline-block;
+      background: rgba(255, 255, 255, .6);
+      padding: 5px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      border: 1px solid rgba(99, 102, 241, .2)
+    }
+
+    .feedback-section {
+      margin-bottom: 22px
+    }
+
+    .feedback-title {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text)
+    }
+
+    .strength-item,
+    .weak-item,
+    .rec-item {
+      padding: 12px 16px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      color: var(--text2)
+    }
+
+    .strength-item {
+      background: var(--green-bg);
+      border: 1px solid var(--green-border)
+    }
+
+    .weak-item {
+      background: var(--red-bg);
+      border: 1px solid var(--red-border)
+    }
+
+    .rec-item {
+      background: var(--accent-glow);
+      border: 1px solid rgba(99, 102, 241, .2)
+    }
+
+    /* Range */
+    .range-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px
+    }
+
+    .range-wrap input[type=range] {
+      flex: 1;
+      height: 6px;
+      -webkit-appearance: none;
+      appearance: none;
+      background: var(--surface3);
+      border-radius: 3px;
+      outline: none
+    }
+
+    .range-wrap input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--accent);
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(99, 102, 241, .4)
+    }
+
+    .range-val {
+      min-width: 44px;
+      text-align: center;
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--accent2)
+    }
+
+    /* Loading */
+    .loading-dots {
+      display: inline-flex;
+      gap: 5px
+    }
+
+    .loading-dots span {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--accent);
+      animation: bounce 1.2s ease-in-out infinite
+    }
+
+    .loading-dots span:nth-child(2) {
+      animation-delay: .2s
+    }
+
+    .loading-dots span:nth-child(3) {
+      animation-delay: .4s
+    }
+
+    @keyframes bounce {
+
+      0%,
+      80%,
+      100% {
+        transform: scale(.6);
+        opacity: .4
+      }
+
+      40% {
+        transform: scale(1);
+        opacity: 1
+      }
+    }
+
+    /* Responsive */
+    @media(max-width:640px) {
+      .app {
+        padding: 16px 12px
+      }
+
+      .card {
+        padding: 16px
+      }
+
+      .row {
+        grid-template-columns: 1fr
+      }
+
+      .skill-map {
+        grid-template-columns: 1fr
+      }
+
+      .interview-header {
+        flex-direction: column;
+        align-items: flex-start
+      }
+
+      .btn {
+        padding: 12px 20px;
+        font-size: 13px;
+        width: 100%;
+        justify-content: center
+      }
+
+      .btn-row {
+        flex-direction: column
+      }
+
+      .step {
+        font-size: 10px;
+        padding: 10px 4px
+      }
+
+      .question-text {
+        font-size: 14px
+      }
+
+      .mcq-option {
+        padding: 12px 14px;
+        font-size: 13px
+      }
+    }
+
+    @media(min-width:641px) and (max-width:1024px) {
+      .app {
+        max-width: 700px;
+        padding: 24px 16px
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <div class="header">
+      <h1>Smart Interview Simulator</h1>
+      <p>AI-powered adaptive technical interviews</p>
+      <div class="tag">MCQ + Short Answer + Detailed</div>
+    </div>
+
+    <div class="step-indicator" id="steps">
+      <div class="step active" id="s1">1. Profile</div>
+      <div class="step" id="s2">2. Analysis</div>
+      <div class="step" id="s3">3. Interview</div>
+      <div class="step" id="s4">4. Feedback</div>
+    </div>
+
+    <!-- STEP 1: Profile -->
+    <div id="view-profile">
+      <div class="card">
+        <div class="card-title"><span class="icon">01</span>Your Resume / Background</div>
+        <div class="section-label">Paste your resume or describe your skills</div>
+        <textarea id="resume"
+          placeholder="Example:
+B.Tech AI & ML student. Skills: Python (strong), Machine Learning (intermediate), Flask, HTML/CSS, JavaScript. Projects: ATS Analyzer using spaCy, NLP-based resume scorer. Familiar with DSA basics. Learning React."></textarea>
+        <div class="hint">The more detail you provide, the better the interview is tailored to you.</div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="icon">02</span>Interview Settings</div>
+        <div class="row">
+          <div>
+            <div class="section-label">GitHub (optional)</div>
+            <input type="text" id="github" placeholder="github.com/yourusername">
+          </div>
+          <div>
+            <div class="section-label">Number of Questions</div>
+            <div class="range-wrap">
+              <input type="range" id="qcount" min="5" max="100" value="10"
+                oninput="document.getElementById('qcount-val').textContent=this.value">
+              <span class="range-val" id="qcount-val">10</span>
+            </div>
+            <div class="hint" style="margin-top:4px">5 (Quick) — 100 (Full Mock)</div>
+          </div>
+        </div>
+      </div>
+      <div style="text-align:right">
+        <button class="btn btn-primary" onclick="analyzeProfile()">Analyze My Profile &rarr;</button>
+      </div>
+    </div>
+
+    <!-- STEP 2: Analysis -->
+    <div id="view-analysis" style="display:none">
+      <div class="card">
+        <div class="card-title"><span class="icon">AI</span>Skill Analysis</div>
+        <div id="analysis-loading" style="text-align:center;padding:24px">
+          <div class="loading-dots"><span></span><span></span><span></span></div>
+          <div style="font-size:13px;color:var(--text3);margin-top:12px">Analyzing your profile...</div>
+        </div>
+        <div id="analysis-result" style="display:none">
+          <div class="section-label">Detected Domain</div>
+          <div id="domain-display"
+            style="font-size:22px;font-weight:800;background:linear-gradient(135deg,#818cf8,#6366f1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:16px">
+          </div>
+          <div class="section-label">Skill Map</div>
+          <div class="skill-map" id="skill-map"></div>
+          <div class="alert-info" style="margin-top:16px" id="analysis-summary"></div>
+        </div>
+      </div>
+      <div id="analysis-actions" style="display:none" class="btn-row">
+        <button class="btn btn-outline" onclick="backToProfile()">&#8592; Edit Profile</button>
+        <button class="btn btn-primary" onclick="startInterview()">Start Interview &rarr;</button>
+      </div>
+    </div>
+
+    <!-- STEP 3: Interview -->
+    <div id="view-interview" style="display:none">
+      <div class="card">
+        <div class="interview-header">
+          <div>
+            <div style="font-size:13px;font-weight:600;color:var(--text3)">Question <span id="q-num">1</span> of <span
+                id="q-total">10</span></div>
+            <div class="progress-bar" style="width:200px;margin-top:6px">
+              <div class="progress-fill" id="q-progress"></div>
+            </div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:12px;color:var(--text3)">Score so far</div>
+            <div style="font-size:24px;font-weight:800;color:var(--accent2)" id="running-score">&mdash;</div>
+          </div>
+        </div>
+        <div class="q-meta">
+          <span class="type-badge" id="type-badge">MCQ</span>
+          <span class="diff-badge" id="diff-badge">Medium</span>
+          <span class="topic-badge" id="topic-badge">Python</span>
+        </div>
+        <div class="question-box">
+          <div class="question-text" id="question-text">Loading question...</div>
+        </div>
+        <div id="eval-box" style="display:none"></div>
+        <div id="mcq-area" style="display:none">
+          <div class="section-label">Choose the correct answer</div>
+          <div class="mcq-options" id="mcq-options"></div>
+        </div>
+        <div class="answer-area" id="answer-area">
+          <div class="section-label" id="answer-label">Your Answer</div>
+          <textarea id="answer" placeholder="Type your answer here..." style="min-height:100px"></textarea>
+        </div>
+        <div class="btn-row" id="q-actions">
+          <button class="btn btn-primary" onclick="submitAnswer()">Submit Answer &rarr;</button>
+        </div>
+        <div id="q-loading" style="display:none;text-align:center;padding:16px">
+          <div class="loading-dots"><span></span><span></span><span></span></div>
+          <div style="font-size:13px;color:var(--text3);margin-top:8px">Evaluating your answer...</div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:8px">
+        <div class="card-title" style="font-size:13px;cursor:pointer" onclick="toggleTimeline()">Question History
+          <span id="tl-toggle" style="font-size:11px;color:var(--text3)">(click to expand)</span>
+        </div>
+        <div id="timeline" style="display:none"></div>
+      </div>
+    </div>
+
+    <!-- STEP 4: Feedback -->
+    <div id="view-feedback" style="display:none">
+      <div class="overall-score">
+        <div class="domain-tag" id="fb-domain"></div>
+        <div class="score-num" id="fb-score">&mdash;</div>
+        <div class="score-label">Overall Interview Score</div>
+      </div>
+      <div class="card">
+        <div class="feedback-section">
+          <div class="feedback-title">Strengths</div>
+          <div id="fb-strengths"></div>
+        </div>
+        <div class="feedback-section">
+          <div class="feedback-title">Areas to Improve</div>
+          <div id="fb-weaknesses"></div>
+        </div>
+        <div class="feedback-section">
+          <div class="feedback-title">Recommendations</div>
+          <div id="fb-recommendations"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Question-by-Question Breakdown</div>
+        <div id="fb-breakdown"></div>
+      </div>
+      <div style="text-align:center;margin-top:12px">
+        <button class="btn btn-primary" onclick="restartApp()">Start New Interview</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="questions.js"></script>
+  <script src="engine.js"></script>
+</body>
+
+</html>
